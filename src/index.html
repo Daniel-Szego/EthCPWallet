@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+
+    <link rel="stylesheet" type="text/css" href="main.css">
+
+    <script src="./js/web3.min.js"></script>
+    <script src="./js/jquery.min.js"></script>
+    
+
+</head>
+<body>
+    <div class="container">
+
+        <h1>Test Page for CommandPrommptWallet</h1>        
+
+        <h2 id="createWaletHeader">Create Wallet</h2>
+
+        <label for="walletname" class="col-lg-2 control-label">WalletName</label>
+        <input id="walletname" type="text">
+
+        <br/>
+        
+        <label for="walletpassword" class="col-lg-2 control-label">Password</label>
+        <input id="walletpassword" type="text">
+       
+        <br/>
+
+        <button id="btnCreateWallet">CreateWallet</button>
+
+        <br/>
+        <h3 id="createdAccounts">List of created accunts with ether balance</h3>
+        <div id="outputCreateWallet"></div>
+
+        <h2 id="listAccountsHeader">List Ether Balance</h2>
+        
+        <label for="walletname2" class="col-lg-2 control-label">WalletName</label>
+        <input id="walletname2" type="text">
+        
+        <br/>
+        
+        <button id="btnGetAccountBalances">GetAccountBalances</button>
+        
+        <br/>
+        <h3 id="createdAccounts">List of accunts</h3>
+        <div id="outputAccounts"></div>
+
+        
+        <br/>
+        <h3 id="createdAccounts">List of created accunts with token balance</h3>
+        <div id="outputCreateWallet"></div>
+
+        <h2 id="listAccountsHeader">List Token Balance</h2>
+        
+        <label for="walletname3" class="col-lg-2 control-label">WalletName</label>
+        <input id="walletname3" type="text">
+        
+        <br/>
+        
+        <button id="btnGetTokenBalances">GetTokenBalances</button>
+        
+        <br/>
+        <h3 id="createdAccountsToken">List of accunts</h3>
+        <div id="outputAccountsToken"></div>
+
+
+    </div>
+
+    <script src="./js/Walletfunctions.js"></script>
+    
+
+</body>
+</html>
