@@ -283,67 +283,145 @@
     var TestTokenAddress = "0x345ca3e014aaf5dca488057592ee47305d9b3e10";
     var TestTokenContract = web3.eth.contract(TestTokenABI).at(TestTokenAddress);
 
-    $("#btnCreateWallet").click(function(){
+    refreshVisibility();  
+
+    $("#createWalletButton").click(function(){
         createAccount();
      });
 
-     $("#btnGetAccountBalances").click(function(){
+     $("#transferTokenButton").click(function(){
+      transferToken();
+     });
+
+     $("#backupWalletButton").click(function(){
+      backupWallet();
+     });
+
+    //UI
+
+    function refreshVisibility(){
+      var walletName = getCookie("walletname");
+      var walletAddress = getCookie("walletaddress");
+      
+      $("#TTWallet" ).text(walletName);
+      $("#TTAddress" ).text(walletAddress);
+
+      if (walletName !== null && walletName !== ''){
+        $("#DIVCreate").hide();
+        $("#DIVTransfer").show();
+        $("#DIVBackup").show();
         getEtherBalances();
-     });
+        getTokenBalances();    
+      }
+      else{
+        $("#DIVCreate").show();
+        $("#DIVTransfer").hide();
+        $("#DIVBackup").hide();
+      }
+    }
 
-     $("#btnGetTokenBalances").click(function(){
-        getTokenBalances();
-     });
+    function showPassword(){
+      var x = document.getElementById("TTWalletPW");
+      if (x.type === "password") {
+          x.type = "text";
+      } else {
+          x.type = "password";
+      }
+    }
 
-     var WalletList = [];
+    //cookie help function
+
+    function setCookie(cname, cvalue, exdays) {
+      var d = new Date();
+      d.setTime(d.getTime() + (exdays*24*60*60*1000));
+      var expires = "expires="+ d.toUTCString();
+      document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+    }
+
+    function getCookie(cname) {
+      var name = cname + "=";
+      var decodedCookie = decodeURIComponent(document.cookie);
+      var ca = decodedCookie.split(';');
+      for(var i = 0; i <ca.length; i++) {
+          var c = ca[i];
+          while (c.charAt(0) == ' ') {
+              c = c.substring(1);
+          }
+          if (c.indexOf(name) == 0) {
+              return c.substring(name.length, c.length);
+          }
+      }
+      return "";
+    }
+
+    // Ethereum services
 
     function createAccount(){
-        var walletName = $('#walletname').val();
-        var walletPassword = $('#walletpassword').val();
-        
-        web3.personal.newAccount(walletPassword, function (error, result) {
-            $( "#outputCreateWallet" ).append("<div>" + result + "</div>");
-            WalletList[result] = walletName;
-            alert("creating account succeded" + result);
-          });
-    }
+      var walletName = $('#TTWalletID').val();
+      var walletPassword = $('#TTWalletPW').val();
+      
+      web3.personal.newAccount(walletPassword, function (error, result) {
+          if (!error){
+            $("#TTWallet" ).val(walletName);
+            $("#TTAddress" ).val(result);
+            setCookie("walletname", walletName, 5);
+            setCookie("walletaddress", result, 5);
+            setCookie("walletpsw", walletPassword, 5);
+            
+            alert("Account creation has been succeeded!");              
+            
+          }else{
+            alert("An error happened at creating the account" + error);              
+          }
+        });
+  }
 
-    function listMyAccounts (walletName) {
-        var walletAccounts = [];
-        for (var account in WalletList){
-            if (WalletList[account] == walletName){
-                walletAccounts.push(account);
-            }
-        }    
-        return walletAccounts;
-    }
+  function getEtherBalances(){
+          var account =  getCookie("walletaddress");
+          var balance = web3.eth.getBalance(account);       
+          $("#TTBalanceEther").text(balance);  
+          return balance;
+  }
 
-    function getEtherBalances(){
-        var walletName = $('#walletname2').val();
-        
-        var walletAccounts = listMyAccounts(walletName);
-        var walletBalances = [];
-        for (var i = 0; i < walletAccounts.length; i++){
-            var account = walletAccounts[i];
-            var balance = web3.eth.getBalance(account);        
-            console.log("account balance ", account, " - ", balance);
-            $( "#outputAccounts" ).append("<div>" + account + " - " + balance + "</div>");
-            walletBalances[account] = balance;
-        }
-        return walletBalances;
-    }
+  function getTokenBalances () {
+    var account =  getCookie("walletaddress");
+    var balance = TestTokenContract.balanceOf(account, function(error, result){
+              $("#TTBalanceToken").text(result);                
+        });
+    return balance;
+  }
 
-    function getTokenBalances () {
-        var walletName = $('#walletname3').val();
-        
-        var walletAccounts = listMyAccounts(walletName);
-        var walletBalances = [];
-        for (var i = 0; i < walletAccounts.length; i++){
-            var account = walletAccounts[i];
-            var balance = TestTokenContract.balanceOf(account, function(error, result){
-                walletBalances[account] = result;
-                $("#outputAccountsToken").append("<div>" + account + " - " + result + "</div>");                
-            });       
-        }
-        return walletBalances;
-    }
+  function transferToken(){
+
+    var fromAddress = getCookie("walletaddress");
+    var fromPassword = getCookie("walletpsw");
+    var toAddress = $("#TTTransferTokenAddress").val();
+    var transferValue = $("#TTTransferTokenAmount").val();
+
+    web3.personal.unlockAccount(fromAddress, fromPassword);    
+    var retVal = TestTokenContract.transfer.sendTransaction(toAddress,transferValue, 
+      {from: fromAddress},
+      function(error, result){
+      if (!error){
+        alert("Token transfer has been succeeded");
+        $("#TTTransferTokenAddress").val("");
+        $("#TTTransferTokenAmount").val("");
+        refreshVisibility();          
+      } else {
+        console.log(error);
+      }
+    });
+    return retVal;
+  }
+
+  function transferEtherFromDefaultAccount(){
+
+  }
+
+  function transferTokenFromDefaultAccount(){
+
+  }
+
+  function backupWallet(){
+
+  }
