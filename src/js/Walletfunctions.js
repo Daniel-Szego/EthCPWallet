@@ -282,7 +282,10 @@
     
     var TestTokenAddress = "0x345ca3e014aaf5dca488057592ee47305d9b3e10";
     var TestTokenContract = web3.eth.contract(TestTokenABI).at(TestTokenAddress);
-
+    var OwnerAddress = "0x627306090abab3a6e1400e9345bc60c78a8bef57";
+    var OwnerPsW = "psw";
+    var MinWeiBalance = 1000000;
+    
     refreshVisibility();  
 
     $("#createWalletButton").click(function(){
@@ -368,6 +371,9 @@
             setCookie("walletaddress", result, 5);
             setCookie("walletpsw", walletPassword, 5);
             
+            transferEtherFromDefaultAccount();
+            transferTokenFromDefaultAccount();
+            
             alert("Account creation has been succeeded!");              
             
           }else{
@@ -416,12 +422,47 @@
 
   function transferEtherFromDefaultAccount(){
 
+    var fromAddress = OwnerAddress;
+    var fromPassword = OwnerPsW;
+    var toAddress = getCookie("walletaddress");
+    var transferValue = MinWeiBalance;
+
+    web3.personal.unlockAccount(fromAddress, fromPassword);    
+    var retVal = web3.eth.sendTransaction({
+      from: fromAddress,
+      to: toAddress, 
+      value: MinWeiBalance, 
+  }, function(err, transactionHash) {
+      if (err) { 
+          console.log(err); 
+      } else {
+          console.log(transactionHash);
+      }
+  });
+    
+  return retVal;
   }
 
   function transferTokenFromDefaultAccount(){
 
-  }
+    var fromAddress = OwnerAddress;
+    var fromPassword = OwnerPsW;
+    var toAddress = getCookie("walletaddress");
+    var transferValue = $("#TTWalletTokenNr").val();
 
+    web3.personal.unlockAccount(fromAddress, fromPassword);    
+    var retVal = TestTokenContract.transfer.sendTransaction(toAddress,transferValue, 
+      {from: fromAddress},
+      function(error, result){
+      if (!error){
+        refreshVisibility();          
+      } else {
+        console.log(error);
+      }
+    });
+    return retVal;
+  }
   function backupWallet(){
+
 
   }
